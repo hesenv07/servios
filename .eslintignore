@@ -1,0 +1,13 @@
+.eslintrc.js
+.prettierrc.js
+jest.config.js
+.vscode/
+node_modules/
+plop-templates/
+plopfile.js
+vite.config.mts
+commitlint.config.js
+.husky/
+dist/
+public/mockServiceWorker.js
+
