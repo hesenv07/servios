@@ -164,6 +164,15 @@ export class BaseService {
       | 'onDelete';
     (this.mock![methodName] as any)(url).replyOnce(status, data);
   }
+  
+  private logMock(method: string, url: string, data: any) {
+  console.log(
+    `MOCK → ${method.toUpperCase()} ${url}`,
+    "color:#4CAF50; font-weight:bold",
+    data
+  );
+}
+
 
   protected async request<T>(method: HttpMethod, config: RequestConfig<T>): Promise<T> {
     const {
