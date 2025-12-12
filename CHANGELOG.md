@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Added `useCustomQuery` hook for seamless React Query integration
+  - Returns query result along with a `QueryCacheManager` instance
+  - Supports paginated, array, and single-item data
+  - Fully typed with TypeScript
+  - Allows optimistic cache updates via manager methods (`create`, `update`, `delete`, `replace`)
+
 ## [1.0.3] - 2025-12-11
 
 ### Changed
