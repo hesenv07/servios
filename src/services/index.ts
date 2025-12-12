@@ -25,6 +25,4 @@ export type {
   RefreshTokenResponse,
 } from './types';
 
-export { ApiService as LegacyApiService } from './api-service';
-
 export { createAxiosInstance } from './axios-instance';

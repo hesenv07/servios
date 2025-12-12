@@ -1,27 +1,21 @@
 # Servios
 
-> Zero-config, production-ready HTTP client & utilities for modern applications
+> Zero-config, production-ready HTTP client for modern applications
 
 [![npm version](https://img.shields.io/npm/v/servios.svg)](https://www.npmjs.com/package/servios)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-Servios is a lightweight library providing essential building blocks for modern applications: API abstractions, React Query cache management, token handling, and utility functions.
+Servios is a lightweight library providing essential building blocks for modern applications: API abstractions, token handling, and utility functions.
 
 ## ✨ Features
 
-### HTTP Client
-
 - 🚀 **Zero-config** - Only `baseURL` required, everything else optional
-- 🔄 **Auto token refresh** - Handles 401 errors automatically
+- 🔄 **Auto token refresh** - Handles 401 errors automatically with queue management
 - 🎭 **Mock support** - Built-in mock adapter for dev/testing
 - 🌐 **Smart URLs** - `{baseURL}/{serviceName}/{version}/{endpoint}`
-
-### React Query
-
-- ⚡ **Cache manager** - Optimistic updates for arrays, paginated data, single items
-- 🔑 **Multiple keys** - Update multiple caches at once
-- 📊 **CRUD support** - Create, update, delete with cache sync
+- 🔐 **Flexible token storage** - Cookie, localStorage, or sessionStorage
+- ⚡ **TypeScript first** - Full type safety and excellent IDE support
 
 ---
 
@@ -31,12 +25,6 @@ Servios is a lightweight library providing essential building blocks for modern 
 npm install servios
 # or
 yarn add servios
-```
-
-For React Query features:
-
-```bash
-npm install @tanstack/react-query
 ```
 
 ---
@@ -247,111 +235,7 @@ class UserService extends ApiService {
 
 ---
 
-## 🔥 React Query Integration
-
-### QueryCacheManager
-
-Powerful cache management for optimistic updates:
-
-```typescript
-import { QueryCacheManager } from 'servios';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-function UserComponent() {
-  const queryClient = useQueryClient();
-
-  const updateUser = useMutation({
-    mutationFn: (data) => userService.patch({ endpoint: data.id, data }),
-    onSuccess: (updatedUser) => {
-      // Single cache
-      const cache = new QueryCacheManager({
-        queryKey: ['users'],
-        queryClient,
-        isPaginated: true,
-      });
-      cache.update(updatedUser);
-    },
-  });
-}
-```
-
-### Multiple Query Keys
-
-Update multiple caches at once:
-
-```typescript
-const cache = new QueryCacheManager({
-  queryKey: [
-    ['users'], // All users
-    ['users', { page: 1 }], // Page 1
-    ['users', { page: 2 }], // Page 2
-  ],
-  queryClient,
-  isPaginated: true,
-});
-
-// Updates all 3 caches
-cache.update({ id: '1', name: 'Updated' });
-```
-
-### CRUD Operations
-
-```typescript
-// Create
-cache.create(newUser, 'start'); // Add to beginning
-
-// Update
-cache.update({ id: '1', name: 'Updated' });
-
-// Update with custom matcher
-cache.update({ status: 'active' }, (user) => user.email === 'test@example.com');
-
-// Delete
-cache.delete('user-id');
-cache.delete(userObject);
-
-// Replace entire cache
-cache.replace(newData);
-
-// Invalidate (refetch)
-cache.invalidate();
-```
-
-### Data Structures
-
-**Paginated:**
-
-```typescript
-const cache = new QueryCacheManager({
-  queryKey: ['users'],
-  queryClient,
-  isPaginated: true,
-  dataPath: ['data'], // Path to nested data
-});
-```
-
-**Array:**
-
-```typescript
-const cache = new QueryCacheManager({
-  queryKey: ['products'],
-  queryClient,
-  isPaginated: false,
-});
-```
-
-**Single Item:**
-
-```typescript
-const cache = new QueryCacheManager({
-  queryKey: ['profile', userId],
-  queryClient,
-  isPaginated: false,
-  dataPath: ['user'],
-});
-```
-
-### Manual Token Management
+## 🔐 Manual Token Management
 
 ```typescript
 import { setToken, getToken, removeToken, setRefreshToken, getRefreshToken } from 'servios';
@@ -475,46 +359,6 @@ export class UserService extends ApiService {
       },
     });
   }
-}
-```
-
-### React Component with Cache
-
-```typescript
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { QueryCacheManager } from 'servios';
-import userService from './UserService';
-
-function Users() {
-  const queryClient = useQueryClient();
-
-  // Fetch
-  const { data } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => userService.getUsers(),
-  });
-
-  // Create with cache update
-  const createUser = useMutation({
-    mutationFn: (data) => userService.createUser(data),
-    onSuccess: (newUser) => {
-      const cache = new QueryCacheManager({
-        queryKey: [['users'], ['users', { page: 1 }]],
-        queryClient,
-        isPaginated: true,
-      });
-      cache.create(newUser, 'start');
-    },
-  });
-
-  return (
-    <div>
-      {data?.users.map((user) => (
-        <div key={user.id}>{user.name}</div>
-      ))}
-      <button onClick={() => createUser.mutate({ name: 'New User' })}>Add</button>
-    </div>
-  );
 }
 ```
 

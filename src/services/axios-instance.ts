@@ -1,11 +1,9 @@
 import axios, { AxiosHeaders } from 'axios';
-import type {
-  AxiosError,
-  AxiosInstance,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from 'axios';
+
+import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+
 import { getToken, setToken } from './token';
+
 import type { ApiServiceConfig, RefreshTokenResponse } from './types';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {

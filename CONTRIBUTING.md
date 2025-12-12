@@ -5,7 +5,6 @@ Contributions are welcome! Help make Servios better for everyone.
 ## What to Contribute
 
 - HTTP services and utilities
-- React Query helpers
 - Bug fixes and improvements
 - Documentation updates
 
