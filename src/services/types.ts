@@ -79,4 +79,5 @@ export interface ApiServiceConfig {
   refreshTokenEndpoint?: string;
   onRefreshTokenFail?: () => void;
   headers?: Record<string, string>;
+  refreshTokenWithCredentials?: boolean;
 }
