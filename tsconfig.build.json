@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "NodeNext",
     "skipLibCheck": true,
+    "experimentalDecorators": true,
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": false,

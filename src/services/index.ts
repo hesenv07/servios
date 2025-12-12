@@ -1,9 +1,7 @@
 export {
   ApiService,
   BaseService,
-  createService,
   configureBaseService,
-  createServiceWithTokens,
 } from './base-service';
 
 export {
@@ -15,6 +13,8 @@ export {
   getRefreshToken,
   removeRefreshToken,
 } from './token';
+
+export { Public } from './decorators';
 
 export type {
   HttpMethod,
