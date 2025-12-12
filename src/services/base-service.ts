@@ -103,6 +103,15 @@ export class BaseService {
       );
     }
   }
+  
+  private logMock(method: string, url: string, data: any) {
+  console.log(
+    `MOCK → ${method.toUpperCase()} ${url}`,
+    "color:red",
+    data
+  );
+}
+
 
   protected async request<T>(method: HttpMethod, config: RequestConfig<T>): Promise<T> {
     const {
