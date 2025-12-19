@@ -1,6 +1,5 @@
-import { CookieManager, isBrowser } from 'everyday-helper';
-
-import type { TokenConfig, SingleTokenConfig, TokenCookieOptions } from './types';
+import { CookieManager } from 'everyday-helper';
+import type { SingleTokenConfig, TokenConfig, TokenCookieOptions } from './types';
 
 const DEFAULT_ACCESS_TOKEN_KEY = 'accessToken';
 const DEFAULT_REFRESH_TOKEN_KEY = 'refreshToken';
@@ -10,7 +9,7 @@ const DEFAULT_COOKIE_OPTIONS: Required<TokenCookieOptions> = {
   expires: 7,
   secure: true,
   httpOnly: false,
-  sameSite: 'Strict' as const,
+  sameSite: 'Strict',
 };
 
 const DEFAULT_REFRESH_COOKIE_OPTIONS: Required<TokenCookieOptions> = {
@@ -18,12 +17,10 @@ const DEFAULT_REFRESH_COOKIE_OPTIONS: Required<TokenCookieOptions> = {
   expires: 30,
   secure: true,
   httpOnly: false,
-  sameSite: 'Strict' as const,
+  sameSite: 'Strict',
 };
 
-let globalTokenConfig: Required<SingleTokenConfig> & {
-  refreshToken?: Required<SingleTokenConfig>;
-} = {
+let globalTokenConfig: Required<SingleTokenConfig> & { refreshToken?: Required<SingleTokenConfig> } = {
   storage: 'cookie',
   tokenKey: DEFAULT_ACCESS_TOKEN_KEY,
   cookieOptions: DEFAULT_COOKIE_OPTIONS,
@@ -34,148 +31,98 @@ let globalTokenConfig: Required<SingleTokenConfig> & {
   },
 };
 
-export const configureToken = (config: TokenConfig): void => {
+export const configureToken = (config: TokenConfig) => {
   globalTokenConfig = {
     tokenKey: config.tokenKey || DEFAULT_ACCESS_TOKEN_KEY,
     storage: config.storage || 'cookie',
-    cookieOptions: {
-      ...DEFAULT_COOKIE_OPTIONS,
-      ...config.cookieOptions,
-    },
+    cookieOptions: { ...DEFAULT_COOKIE_OPTIONS, ...config.cookieOptions },
     refreshToken: config.refreshToken
       ? {
-          tokenKey: config.refreshToken.tokenKey || DEFAULT_REFRESH_TOKEN_KEY,
-          storage: config.refreshToken.storage || 'cookie',
-          cookieOptions: {
-            ...DEFAULT_REFRESH_COOKIE_OPTIONS,
-            ...config.refreshToken.cookieOptions,
-          },
-        }
+        tokenKey: config.refreshToken.tokenKey || DEFAULT_REFRESH_TOKEN_KEY,
+        storage: config.refreshToken.storage || 'cookie',
+        cookieOptions: { ...DEFAULT_REFRESH_COOKIE_OPTIONS, ...config.refreshToken.cookieOptions },
+      }
       : {
-          storage: 'cookie',
-          tokenKey: DEFAULT_REFRESH_TOKEN_KEY,
-          cookieOptions: DEFAULT_REFRESH_COOKIE_OPTIONS,
-        },
+        storage: 'cookie',
+        tokenKey: DEFAULT_REFRESH_TOKEN_KEY,
+        cookieOptions: DEFAULT_REFRESH_COOKIE_OPTIONS,
+      },
   };
 };
 
-const setTokenInStorage = (
-  token: string,
-  storage: 'cookie' | 'localStorage' | 'sessionStorage',
-  tokenKey: string,
-  cookieOptions?: TokenCookieOptions,
-): void => {
+// SSR-safe storage functions
+const setTokenInStorage = (token: string, storage: string, tokenKey: string, cookieOptions?: TokenCookieOptions) => {
+  if (typeof window === 'undefined') return;
   switch (storage) {
     case 'localStorage':
-      if (isBrowser()) {
-        localStorage.setItem(tokenKey, token);
-      }
+      localStorage.setItem(tokenKey, token);
       break;
     case 'sessionStorage':
-      if (isBrowser()) {
-        sessionStorage.setItem(tokenKey, token);
-      }
+      sessionStorage.setItem(tokenKey, token);
       break;
     case 'cookie':
     default:
-      CookieManager.set(tokenKey, token, {
-        ...DEFAULT_COOKIE_OPTIONS,
-        ...cookieOptions,
-      });
-      break;
+      CookieManager.set(tokenKey, token, { ...DEFAULT_COOKIE_OPTIONS, ...cookieOptions });
   }
 };
 
-const getTokenFromStorage = (
-  storage: 'cookie' | 'localStorage' | 'sessionStorage',
-  tokenKey: string,
-): string | null => {
+const getTokenFromStorage = (storage: string, tokenKey: string): string | null => {
+  if (typeof window === 'undefined') return null;
   switch (storage) {
     case 'localStorage':
-      if (isBrowser()) {
-        return localStorage.getItem(tokenKey) || null;
-      }
-      return null;
+      return localStorage.getItem(tokenKey) || null;
     case 'sessionStorage':
-      if (isBrowser()) {
-        return sessionStorage.getItem(tokenKey) || null;
-      }
-      return null;
+      return sessionStorage.getItem(tokenKey) || null;
     case 'cookie':
     default:
       return CookieManager.get(tokenKey);
   }
 };
 
-const removeTokenFromStorage = (
-  storage: 'cookie' | 'localStorage' | 'sessionStorage',
-  tokenKey: string,
-  cookieOptions?: TokenCookieOptions,
-): void => {
+const removeTokenFromStorage = (storage: string, tokenKey: string, cookieOptions?: TokenCookieOptions) => {
+  if (typeof window === 'undefined') return;
   switch (storage) {
     case 'localStorage':
-      if (isBrowser()) {
-        localStorage.removeItem(tokenKey);
-      }
+      localStorage.removeItem(tokenKey);
       break;
     case 'sessionStorage':
-      if (isBrowser()) {
-        sessionStorage.removeItem(tokenKey);
-      }
+      sessionStorage.removeItem(tokenKey);
       break;
     case 'cookie':
     default:
-      CookieManager.remove(tokenKey, {
-        path: cookieOptions?.path || '/',
-      });
-      break;
+      CookieManager.remove(tokenKey, { path: cookieOptions?.path || '/' });
   }
 };
 
-export const setToken = (token: string, config?: TokenConfig): void => {
+export const setToken = (token: string, config?: TokenConfig) => {
   const tokenConfig = config || globalTokenConfig;
-  const tokenKey = tokenConfig.tokenKey || DEFAULT_ACCESS_TOKEN_KEY;
-  const storage = tokenConfig.storage || 'cookie';
-  setTokenInStorage(token, storage, tokenKey, tokenConfig.cookieOptions);
+  setTokenInStorage(token, tokenConfig.storage!, tokenConfig.tokenKey!, tokenConfig.cookieOptions);
 };
 
-export const getToken = (config?: TokenConfig): string | null => {
+export const getToken = (config?: TokenConfig) => {
   const tokenConfig = config || globalTokenConfig;
-  const tokenKey = tokenConfig.tokenKey || DEFAULT_ACCESS_TOKEN_KEY;
-  const storage = tokenConfig.storage || 'cookie';
-  return getTokenFromStorage(storage, tokenKey);
+  return getTokenFromStorage(tokenConfig.storage!, tokenConfig.tokenKey!);
 };
 
-export const removeToken = (config?: TokenConfig): void => {
+export const removeToken = (config?: TokenConfig) => {
   const tokenConfig = config || globalTokenConfig;
-  const tokenKey = tokenConfig.tokenKey || DEFAULT_ACCESS_TOKEN_KEY;
-  const storage = tokenConfig.storage || 'cookie';
-  removeTokenFromStorage(storage, tokenKey, tokenConfig.cookieOptions);
+  removeTokenFromStorage(tokenConfig.storage!, tokenConfig.tokenKey!, tokenConfig.cookieOptions);
 };
 
-export const setRefreshToken = (token: string, config?: TokenConfig): void => {
+export const setRefreshToken = (token: string, config?: TokenConfig) => {
   const refreshConfig = config?.refreshToken || globalTokenConfig.refreshToken;
   if (!refreshConfig) return;
-
-  const tokenKey = refreshConfig.tokenKey || DEFAULT_REFRESH_TOKEN_KEY;
-  const storage = refreshConfig.storage || 'cookie';
-  setTokenInStorage(token, storage, tokenKey, refreshConfig.cookieOptions);
+  setTokenInStorage(token, refreshConfig.storage!, refreshConfig.tokenKey!, refreshConfig.cookieOptions);
 };
 
-export const getRefreshToken = (config?: TokenConfig): string | null => {
+export const getRefreshToken = (config?: TokenConfig) => {
   const refreshConfig = config?.refreshToken || globalTokenConfig.refreshToken;
   if (!refreshConfig) return null;
-
-  const tokenKey = refreshConfig.tokenKey || DEFAULT_REFRESH_TOKEN_KEY;
-  const storage = refreshConfig.storage || 'cookie';
-  return getTokenFromStorage(storage, tokenKey);
+  return getTokenFromStorage(refreshConfig.storage!, refreshConfig.tokenKey!);
 };
 
-export const removeRefreshToken = (config?: TokenConfig): void => {
+export const removeRefreshToken = (config?: TokenConfig) => {
   const refreshConfig = config?.refreshToken || globalTokenConfig.refreshToken;
   if (!refreshConfig) return;
-
-  const tokenKey = refreshConfig.tokenKey || DEFAULT_REFRESH_TOKEN_KEY;
-  const storage = refreshConfig.storage || 'cookie';
-  removeTokenFromStorage(storage, tokenKey, refreshConfig.cookieOptions);
+  removeTokenFromStorage(refreshConfig.storage!, refreshConfig.tokenKey!, refreshConfig.cookieOptions);
 };
