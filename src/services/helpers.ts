@@ -75,7 +75,7 @@ export function registerMock<T>(
   mock: MockAdapter | undefined,
   method: HttpMethod,
   url: string,
-  data: T,
+  data: T | ((config: AxiosRequestConfig) => { data: T; status?: number }),
   status = 200,
 ): void {
   if (!mock) return;
@@ -87,7 +87,14 @@ export function registerMock<T>(
     | 'onPatch'
     | 'onDelete';
 
-  (mock[methodName] as any)(url).replyOnce(status, data);
+  (mock[methodName] as any)(url).reply((config: AxiosRequestConfig) => {
+    if (typeof data == 'function') {
+      const r = (data as Function)(config);
+      return [r.status ?? 200, r.data];
+    }
+    return [status, data];
+
+  })
 }
 
 export function enableMocking(api: AxiosInstance, mockDelay: number): MockAdapter {
