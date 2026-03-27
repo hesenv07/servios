@@ -38,7 +38,7 @@ export interface RequestConfig<T = any> {
 }
 
 export interface BaseServiceOptions {
-  baseURL: string;
+  baseURL?: string;
 
   version?: string;
   serviceName?: string;

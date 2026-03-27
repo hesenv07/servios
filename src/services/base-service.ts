@@ -33,7 +33,7 @@ export class BaseService {
   private interceptorState: InterceptorState;
 
   private options: {
-    baseURL: string;
+    baseURL?: string;
     version?: string;
     useMock: boolean;
     mockDelay: number;
@@ -83,7 +83,7 @@ export class BaseService {
       ...options,
     };
 
-    this.api = axios.create({ baseURL: this.options.baseURL });
+    this.api = axios.create({ baseURL: this.options.baseURL ?? '' });
 
     if (this.options.useMock) {
       this.mock = enableMocking(this.api, this.options.mockDelay);
@@ -105,15 +105,10 @@ export class BaseService {
       );
     }
   }
-  
-  private logMock(method: string, url: string, data: any) {
-  console.log(
-    `MOCK → ${method.toUpperCase()} ${url}`,
-    "color:red",
-    data
-  );
-}
 
+  private logMock(method: string, url: string, data: any) {
+    console.log(`MOCK → ${method.toUpperCase()} ${url}`, 'color:red', data);
+  }
 
   protected async request<T>(method: HttpMethod, config: RequestConfig<T>): Promise<T> {
     const {
@@ -128,6 +123,10 @@ export class BaseService {
       isPublic = false,
       config: axiosConfig = {},
     } = config;
+
+    if (!this.options.baseURL) {
+      throw new Error('baseURL is not configured');
+    }
 
     const url = buildUrl(
       this.options.serviceName,
