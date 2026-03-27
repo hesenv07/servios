@@ -143,6 +143,7 @@ export function setupInterceptors(
     retryOnStatusCodes: number[];
     refreshToken?: () => Promise<{ accessToken: string; refreshToken?: string }>;
     logout: () => void;
+    skipRefreshOn?: (string | RegExp)[];
   },
   state: InterceptorState,
 ): void {
@@ -164,10 +165,16 @@ export function setupInterceptors(
       const config = error.config as CustomAxiosRequestConfig;
       if (!config) return Promise.reject(error);
 
+      const url = config.url ?? '';
+      const isSkipped = options.skipRefreshOn?.some((pattern) =>
+        typeof pattern === 'string' ? url.includes(pattern) : pattern.test(url),
+      );
+
       const shouldRetry =
         error.response?.status &&
         options.retryOnStatusCodes.includes(error.response.status) &&
-        !config._retry;
+        !config._retry &&
+        !isSkipped;
 
       if (shouldRetry && options.refreshToken) {
         config._retry = true;

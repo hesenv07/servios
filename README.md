@@ -764,6 +764,47 @@ configureBaseService({
 });
 ```
 
+### Skip Token Refresh on Specific URLs
+
+By default, Servios attempts to refresh the token on any 401 response. Use `skipRefreshOn` to prevent refresh attempts on specific paths (e.g., login, register).
+
+Accepts an array of **strings** (substring match) or **RegExp** patterns.
+
+> **Note:** The URL matched against is the **axios request path** built by Servios (e.g., `auth/v1/login`), not the browser's `window.location`. It does **not** include the `baseURL`.
+>
+> For example, a service with `serviceName: 'auth'`, `version: 'v1'`, and `endpoint: 'login'` produces the path `auth/v1/login`.
+
+```typescript
+configureBaseService({
+  baseURL: 'https://api.example.com',
+
+  // String - skips refresh if the request path includes the string
+  skipRefreshOn: ['auth/v1/login', 'auth/v1/register'],
+});
+```
+
+```typescript
+configureBaseService({
+  baseURL: 'https://api.example.com',
+
+  // RegExp - more flexible matching (useful when version may vary)
+  skipRefreshOn: [/auth\/.*\/login/, /public\/.*/],
+});
+```
+
+```typescript
+configureBaseService({
+  baseURL: 'https://api.example.com',
+
+  // Mixed
+  skipRefreshOn: ['auth/v1/login', /public\/.*/],
+});
+```
+
+When a URL matches, the 401 error is passed **directly** to `transformError` without any refresh attempt.
+
+---
+
 ### Custom Retry Status Codes
 
 ```typescript

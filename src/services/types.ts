@@ -63,6 +63,8 @@ export interface BaseServiceOptions {
 
   transformError?: (error: AxiosError<any>) => any;
 
+  skipRefreshOn?: (string | RegExp)[];
+
   tokenConfig?: TokenConfig;
 }
 

@@ -49,6 +49,7 @@ export class BaseService {
     setAccessToken: (token: string) => void;
     setRefreshToken: (token: string) => void;
     transformError: (error: AxiosError<any>) => any;
+    skipRefreshOn?: (string | RegExp)[];
     tokenConfig?: BaseServiceOptions['tokenConfig'];
     refreshToken?: () => Promise<{ accessToken: string; refreshToken?: string }>;
   };
@@ -98,6 +99,7 @@ export class BaseService {
           retryOnStatusCodes: this.options.retryOnStatusCodes!,
           refreshToken: this.options.refreshToken,
           logout: this.options.logout!,
+          skipRefreshOn: this.options.skipRefreshOn,
         },
         this.interceptorState,
       );
