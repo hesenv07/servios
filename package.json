@@ -102,7 +102,7 @@
     "vitest": "^2.1.0"
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": ">=1.7.2 <1.14.1",
     "axios-mock-adapter": "^2.1.0",
     "everyday-helper": "^1.2.8"
   }
