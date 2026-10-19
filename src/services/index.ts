@@ -21,6 +21,7 @@ export type {
   TokenConfig,
   EncryptConfig,
   RequestConfig,
+  ProgressContext,
   ServiceOverrides,
   BaseServiceOptions,
   RefreshTokenResponse,

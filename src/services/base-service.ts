@@ -3,6 +3,7 @@ import axios, {
   type AxiosInstance,
   type AxiosResponse,
   type AxiosRequestConfig,
+  type AxiosProgressEvent,
 } from 'axios';
 
 import MockAdapter from 'axios-mock-adapter';
@@ -121,6 +122,7 @@ export class BaseService {
       mockStatus = 200,
       includeHeaders = false,
       isPublic = false,
+      onProgress,
       config: axiosConfig = {},
     } = config;
 
@@ -145,9 +147,17 @@ export class BaseService {
     const isDecoratorPublic = isCallingMethodPublic(this);
     const finalIsPublic = isPublic || isDecoratorPublic;
 
+    const hasBody = method !== 'get' && method !== 'delete';
+
     const requestConfig: AxiosRequestConfig & { isPublic?: boolean } = {
       params,
       ...axiosConfig,
+      ...(onProgress && {
+        [hasBody ? 'onUploadProgress' : 'onDownloadProgress']: (event: AxiosProgressEvent) => {
+          (hasBody ? axiosConfig.onUploadProgress : axiosConfig.onDownloadProgress)?.(event);
+          if (event.total) onProgress(Math.round((event.loaded * 100) / event.total));
+        },
+      }),
       isPublic: finalIsPublic,
     };
 

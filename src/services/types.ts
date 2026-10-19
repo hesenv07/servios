@@ -30,7 +30,11 @@ export interface TokenConfig extends SingleTokenConfig {
   };
 }
 
-export interface RequestConfig<T = any> {
+export interface ProgressContext {
+  onProgress?: (percent: number) => void;
+}
+
+export interface RequestConfig<T = any> extends ProgressContext {
   data?: any;
   mockData?: T;
   endpoint: string;
