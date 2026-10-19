@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.0.23] - 2026-10-19
+
+### Added
+
+- `onProgress` request option that reports progress as a percentage (0–100)
+  - Tracks upload progress for requests with a body (`post`, `put`, `patch`) and download progress for `get` and `delete`
+  - A custom `onUploadProgress` / `onDownloadProgress` passed through `config` still runs
+- `ProgressContext` type export
+
 ## [1.0.3] - 2025-12-11
 
 ### Changed
